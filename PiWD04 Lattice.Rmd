@@ -1,0 +1,113 @@
+---
+title: "Introduction to package *lattice*"
+author: "Mariusz Rafało"
+output:
+  html_document: default
+  html_notebook: default
+editor_options: 
+  chunk_output_type: console
+---
+
+*Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
+
+&copy; *Copyright Mariusz Rafało*
+
+---
+
+####Summary
+This document presents basic concepts of data exploration in *R*, using package *lattice*.
+
+####Data
+All data used in this document come from *R* package **MASS**.
+
+####Introduction
+
+Environment setup
+
+```{r setup, include=FALSE, ECHO=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5, echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+Libraries used in document
+
+```{r}
+library(MASS)
+library(lattice)
+```
+
+Put *Cars93* built-in dataset into variable *dane*
+```{r}
+dane <- Cars93
+```
+
+Histogram
+```{r}
+
+histogram(~Price, xlab="Cena", data=dane, col="green", main="Histogram")
+
+histogram(~Price|Origin, xlab="Cena", data=dane, col=c(12,16))
+
+```
+
+Density charts
+
+```{r}
+densityplot(~Price|Origin, xlab="Cena", data=dane, groups=DriveTrain, plot.points=FALSE, auto.key = TRUE)
+
+```
+
+Q-Q plots
+
+```{r}
+
+qqmath(~Price|Origin, dane)
+
+
+qqmath(~Price, dane)
+
+qqmath(~ Price , dane, groups = DriveTrain, f.value = ppoints(100), 
+       auto.key = list(columns = 3))
+```
+
+Boxplot
+
+```{r}
+
+bwplot(Price~Type|Origin, dane, col="blue")
+
+bwplot(Price~Type, dane, layout=c(1,1), col="blue")
+
+```
+
+Bar plot
+
+```{r}
+barchart(Type~Price|Origin, dane)
+
+```
+
+Dot plot
+
+```{r}
+
+xyplot(Price~Horsepower, dane)
+```
+
+Dot plot
+
+```{r}
+
+dotplot(Horsepower~Price, dane, groups=Origin, pch=c(1,2), auto.key=list(columns=2))
+dotplot(Price~Horsepower, data = dane, groups = Origin, type = "o",
+        auto.key = list(space = "bottom", points = TRUE, lines = TRUE))
+
+```
+
+3d charts examples
+
+```{r}
+cloud(Price~Horsepower*Cylinders,dane,screen = list(x = 0, y=0, z=0))
+cloud(Price~Horsepower*Cylinders,dane,screen = list(x = 30, y=0, z=0))
+cloud(Price~Horsepower*Cylinders,dane,screen = list(x = 30, y=-5, z=0))
+cloud(Price~Horsepower*Cylinders,dane,screen = list(x = 30, y=5, z=15))
+```

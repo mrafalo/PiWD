@@ -1,0 +1,161 @@
+---
+title: "Introduction to package *graphics*"
+author: "Mariusz Rafało"
+output:
+  html_document: default
+  html_notebook: default
+editor_options: 
+  chunk_output_type: console
+---
+
+*Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
+
+&copy; *Copyright Mariusz Rafało*
+
+---
+
+####Summary
+This document presents basic concepts of data exploration in *R*, using built-in package *graphics*.
+
+####Data
+All data used in this document come from *R* package **MASS**.
+
+####Introduction
+
+Environment setup
+```{r setup, include=FALSE, ECHO=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5, echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+Libraries used in document
+
+```{r}
+library(MASS)
+```
+
+#### Selected data manipulation functions
+
+*table* and *prop.table*
+```{r}
+
+t1 <- table(Cars93$Type)
+
+t1
+
+prop.table(t1)
+
+t2 <- table(Cars93$Type, Cars93$Passengers)
+t2
+
+prop.table(t2)
+
+prop.table(table(Cars93$Type))
+
+prop.table(table(Cars93$Type, Cars93$Passengers))
+
+prop.table(table(Cars93$Type))
+
+d <- Cars93
+
+d1 <- d[,c("Manufacturer","Type","Price")]
+
+d[d$Manufacturer=="Toyota",c("Model","Horsepower")]
+```
+
+Density plots
+
+```{r}
+x1 <- density(d[d$Type=="Compact",]$Price)
+x2 <- density(d[d$Type=="Large",]$Price)
+
+plot(x1, main="Ceny aut", col="green", xlim=c(0,50), ylim=c(0,0.1))
+lines(x2, col=156)
+legend("topright",legend = c("Kompakty","Du?e"), col = c("green",156), pch = c(1,1))
+
+```
+
+#### Data analysis using base *plot* function
+
+
+```{r}
+
+plot(Cars93$Price, xlab="Index", ylab="Cena", pch=6, col="blue")
+lines(lowess(Cars93$Price))
+
+plot(density(Cars93$Price))
+plot(Cars93$Price~Cars93$MPG.city)
+plot(Cars93$Price~Cars93$MPG.city, xlim=c(0,50))
+
+plot(density(Cars93$Price), lwd=4, lty=5, col=21)
+
+plot(Cars93$Manufacturer, col=12)
+
+plot(Cars93$Type~Cars93$Cylinders)
+
+plot(Cars93[,c("Price","Passengers","EngineSize")])
+
+plot(Cars93$Price~Cars93$Type, xlab="Typ", ylab="Cena", main="Plot title")
+```
+
+**Split screen**
+
+```{r}
+par(mfrow=c(2,2))
+
+plot(Cars93$Price, xlab="Index", ylab="Cena", pch=2)
+plot(density(Cars93$Price))
+plot(Cars93$Price~Cars93$MPG.city)
+plot(Cars93$Price~Cars93$MPG.city, xlim=c(0,50)) 
+
+par(mfrow=c(1,1))
+
+```
+
+**Two data categories on single plot**
+
+```{r}
+d0 <- density(Cars93[Cars93$Type=="Large",]$Price)
+d1 <- density(Cars93[Cars93$Type=="Sporty",]$Price)
+
+
+plot(d0, col="green", main="")
+lines(d1, col="red")
+
+```
+
+**Legend**
+
+```{r}
+d0 <- density(Cars93[Cars93$Type=="Large",]$Price)
+d1 <- density(Cars93[Cars93$Type=="Sporty",]$Price)
+plot(d0, col="green", main="")
+lines(d1,col="red")
+legend('topright',legend = c("Large","Sporty"), col = c("green","red"),pch = c(3,3))
+```
+
+**Other functions**
+
+```{r}
+boxplot(Cars93$Price)
+
+barplot(Cars93$Price)
+
+pie(table(Cars93$Type))
+
+
+```
+
+
+*cut* function
+
+```{r}
+library(plyr) #cut function
+
+pp <- cut(Cars93$Price,3, labels = c("low", "average","high"))
+
+
+pp.new <- mapvalues(pp, from = c("(7.35,25.6]", "(25.6,43.7]", "(43.7,62]"), to = c("low", "average","high"))
+plot(pp, main="Car price")
+
+```
+

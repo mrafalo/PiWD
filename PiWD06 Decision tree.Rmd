@@ -1,0 +1,115 @@
+---
+title: "Decision trees - basic concept"
+author: "Mariusz Rafało"
+output:
+  html_document: default
+  html_notebook: default
+editor_options: 
+  chunk_output_type: console
+---
+
+*Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
+
+&copy; *Copyright Mariusz Rafało*
+
+---
+
+####Summary
+This document presents basic concepts of decision tree analysis performed in *R*.
+
+####Data
+Dataset *telco.csv* was downloaded from [Churn in Telecom dataset](https://rickvanderzwet.nl/trac/personal/export/167/liacs/dbdm/dbdm_3/report.pdf) article.
+
+####Introduction 
+
+Environment setup
+
+```{r setup, include=FALSE, ECHO=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5, echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+Load data from *telco.csv* file
+
+```{r}
+dane <- read.csv("E:/Data sets/telco/telco.csv", header=TRUE, sep=";")
+```
+
+Divide dataset into training and test datasets 
+
+```{r}
+set.seed(101) 
+sample <- sample.int(nrow(dane), floor(.75*nrow(dane)), replace = F)
+dane.train <- dane[sample, ]
+dane.test <- dane[-sample, ]
+```
+
+Libraries specific for decision tree analysis
+
+```{r}
+library(rpart)
+library(rpart.plot)
+```
+
+####Decission tree
+
+The model
+
+```{r}
+model.dt <- rpart(Churn ~ AccountLength + DayMins + IntlPlan + VMailPlan  + IntlCalls + CustServCalls + EveCalls + NightCalls + VMailMessage, data=dane.train)
+```
+
+Basic model summary
+
+```{r}
+prp(model.dt, main="", cex=1)
+
+plotcp(model.dt)
+plotcp(model.dt, cex.lab=1.1, cex.axis=1.1)
+
+printcp(model.dt)
+
+```
+
+Model visualization using *rattle* package
+
+```{r}
+library(rattle)
+
+fancyRpartPlot(model.dt, cex=0.6)
+
+```
+
+ROC curve
+
+```{r}
+library(pROC) #roc
+
+predict.dt <- predict(model.dt, newdata=dane.test, type = "vector") 
+
+roc.dt <- roc(as.numeric(dane.test$Churn),as.numeric(predict.dt), direction="<")
+
+plot(roc.dt,col="red", lwd=1, main="Decision tree model")
+
+```
+
+Model diagnostics: confusion matrix
+
+```{r}
+
+library(caret) #confusionMatrix
+
+predict.dt1 <- predict.dt
+
+predict.dt1[predict.dt>0.4] <-1
+predict.dt1[predict.dt<=0.4] <-0
+
+conf.matrix.dt <- confusionMatrix(predict.dt1, as.numeric(dane.test$Churn))
+
+conf.matrix.dt$table
+
+tmp <- as.data.frame(conf.matrix.dt$table)
+qplot(x=Prediction, y=Reference, data=tmp, fill=Freq, geom="tile")
+
+```
+
+

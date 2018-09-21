@@ -1,0 +1,267 @@
+---
+title: "Introduction to package *ggplot2* part 1"
+author: "Mariusz Rafało"
+output:
+  html_document: default
+  html_notebook: default
+editor_options: 
+  chunk_output_type: console
+---
+
+*Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
+
+&copy; *Copyright Mariusz Rafało*
+
+---
+
+####Summary
+This document presents basic concepts of decision tree analysis performed in *R*.
+
+####Data
+Dataset *landdata-states.csv* was downloaded from [Research consulting for the Harvard community](http://tutorials.iq.harvard.edu/R/Rgraphics/dataSets).
+
+####Introduction 
+
+Environment setup
+
+```{r setup, include=FALSE, ECHO=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5, echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+Clear workspace
+```{r}
+rm(list=ls())
+```
+
+Libraries used
+```{r}
+library(ggplot2)
+library(data.table) #fread
+library(reshape2) #melt
+library(magrittr)
+library(dplyr)
+
+```
+
+Load data from *landdata-states.csv* file
+
+```{r}
+dane <- read.csv("E:/Data Sets/housing/landdata-states.csv", header=TRUE, sep=",")
+d <- dane
+```
+
+####Basic analysis
+
+Single variable (continuous)
+
+```{r}
+wyk.hist <- ggplot(dane, aes(x = Home.Value)) + geom_histogram(color="red", fill="green") 
+wyk.hist
+
+wyk.hist <- ggplot(dane, aes(x = Home.Value)) + geom_histogram(color="red", fill="red", binwidth = 5000) 
+wyk.hist
+
+wyk.hist + xlab("Value") + ylab("Quantity")
+
+wyk.hist + xlab("Value") + ylab("Quantity") + ggtitle("Home price")
+
+wyk.hist + xlim(c(0,500000))
+
+qplot(data=dane, x=Home.Value, geom = "histogram")+ xlab("Value")
+
+wyk.hist <- ggplot(dane, aes(x = Home.Value)) + geom_histogram(color="red", fill="red") 
+wyk.hist + geom_freqpoly(color="blue")
+```
+
+Two variables (continuous)
+
+```{r}
+dane.sub <- dane[dane$State %in% c("IL","LA","SD","CO"),]
+
+wyk.sub <- ggplot(dane.sub,aes(x=Date,y=Home.Value,color=State))+geom_point()
+wyk.sub
+
+ggplot(dane.sub,aes(x=Date,y=Home.Value,color=State))+geom_point() + scale_y_log10()
+
+ggplot(dane.sub,aes(x=Date,y=Home.Value,color=State))+geom_smooth()
+
+ggplot(dane.sub,aes(x=Date,y=Home.Value,color=State))+geom_point()+geom_smooth()
+
+```
+
+Several variables on single plot
+
+```{r}
+wyk.bazowy <- ggplot(dane.sub, aes(x = Date , y = Land.Value/1000)) + xlab("Rok") + ylab("Land prices (kUSD)")
+
+wyk.bazowy + geom_text(aes(label=State), size = 3)
+
+wyk.bazowy + geom_point(aes(color = Home.Value)) 
+
+wyk.bazowy + geom_point(aes(color=Home.Value/1000, shape = region), size=2) + scale_color_gradient(low = "red", high = "yellow")
+
+
+wyk.bazowy + geom_line(aes(color = State))
+
+
+```
+
+One continuous variable and several discrete variables
+
+```{r}
+ggplot(dane.sub, aes(x=State, y=Home.Value/1000)) + geom_bar(stat="identity") + ggtitle("Home prices")
+
+ggplot(dane.sub, aes(x=State, y=Home.Value/1000)) + geom_boxplot()
+
+ggplot(dane.sub, aes(x=State, y=Home.Value/1000)) + geom_violin(scale="area", color=12, alpha=0.5) +geom_jitter(alpha=0.5, aes(color=region),position = position_jitter(width = 0.1))
+
+```
+
+####Advanced analysis
+
+3 variables (jitter)
+
+```{r}
+
+dane.sub <- dane[dane$State %in% c("IL","LA","SD","CO","SO","VA","WY"),]
+
+wyk.jitter <- ggplot(dane.sub, aes(x = State,y = Home.Price.Index)) + 
+        theme(legend.position="top",axis.text=element_text(size = 6))
+
+wyk.jitter + geom_point(aes(color = Date), alpha = 0.4, size = 1.5,
+                       position = position_jitter(width = 0.1, height = 0))
+
+```
+
+
+Heatmap
+
+```{r}
+
+ggplot(data = melt(cor(dane[,c("Home.Value","Land.Value","Land.Share..Pct.","Year")])), aes(x=Var1, y=Var2)) + geom_tile(aes(fill=value)) + xlab("") + ylab("")
+
+
+ggplot(data = dane, aes(x=Home.Value, y=Land.Value)) + geom_hex() +
+  scale_fill_gradient(low = "green", high = "red")
+
+
+ggplot(data = dane, aes(x=Home.Value, y=Land.Value)) + geom_density2d()
+
+ggplot(data = dane.sub, aes(x=Home.Value, y=Land.Value)) + geom_density2d(aes(color=region))
+
+```
+
+Gradient plots
+
+```{r}
+ggplot(data = dane, aes(x=Home.Value, y=Land.Price.Index)) + stat_density2d(aes(fill = ..density..), geom = "raster", contour = FALSE)
+
+
+ggplot(data = dane, aes(x=Land.Price.Index, y=Home.Price.Index)) + stat_density2d(aes(fill = ..density..), geom = "raster", contour = FALSE) + xlim(0,3) + ylim(0,2) +
+  scale_fill_gradient(low = "grey", high = "red") 
+
+
+ggplot(data = dane, aes(x=Land.Price.Index, y=Home.Price.Index)) + geom_point(aes(alpha = Year)) + scale_alpha(range = c(0.1, 0.8))
+
+ggplot(data = dane, aes(x=Land.Price.Index, y=Home.Price.Index)) + geom_point(aes(color = Year)) +   scale_color_gradient(low = "green", high = "red") 
+
+
+ggplot(data = dane, aes(x=Land.Price.Index, y=Home.Price.Index)) + geom_point(aes(color = Year)) +   scale_color_gradient(low = "green", high = "red") + xlim(0,3) + ylim(0,2)
+
+ggplot(data = dane, aes(x=Land.Price.Index, y=Home.Price.Index)) + geom_point(aes(color = Year)) +   scale_color_gradient(low = "green", high = "red") + xlim(0,1) + ylim(0.5,1.5)
+
+ggplot(data = dane, aes(x=Land.Price.Index, y=Home.Price.Index)) + geom_point(aes(color = Year)) +   scale_color_gradient(low = "green", high = "red") + xlim(0,1) + ylim(0.5,1.5) + facet_wrap(~region, nrow=1)
+
+```
+
+
+####Sample report 1
+
+```{r r1}
+dd <- dane %>% 
+  group_by(State, region) %>%
+  summarise(srednia = mean(Home.Value)) 
+
+pos <- dd[order(dd$region),]$State
+
+ggplot(dd[order(dd$region),], aes(x=State, y=srednia/1000)) + 
+  geom_bar(stat="identity", aes(fill=region)) +
+  scale_x_discrete(limits=pos) + xlab("Year") + ylab("Average home price") +
+  scale_fill_discrete(name="Region")
+
+```
+
+####Sample report 2
+
+```{r r2}
+
+ggplot(d) + geom_line(aes(x=Date, y=Home.Value/1000, color=State, linetype=region), lwd=1) +
+  scale_linetype_discrete(name='Region') +
+  scale_color_discrete(name='State') + xlab("Year") + ylab("Home price (1000 USD)") 
+```
+
+####Sample report 3
+
+```{r r3}
+ggplot(d[d$State %in% c("CT","AR"),]) + geom_point(aes(x=Date, y=Home.Value/1000, color=Land.Value/1000, shape=State),size=4) +
+  scale_color_gradient(name='Land price', low='green', high='red') +
+  scale_shape(solid=TRUE, name="State")+ xlab("Year") + ylab("Home prices (1000 USD)") 
+
+```
+
+####Sample report 4
+
+```{r r4}
+
+ggplot(dane[dane$region %in% c("N. East","West"),],aes(x=State, y=Home.Value/1000)) + geom_violin(scale="area") +
+  geom_jitter(aes(color=region), alpha=0.4, position = position_jitter(width=0.1)) +
+  facet_wrap(~region)+ xlab("State") + ylab("Home prices (1000 USD)") +
+  scale_color_discrete(name="Region")
+```
+
+####Sample report 5
+
+```{r r5}
+ggplot(d, aes(x=State, y=Date)) + 
+  theme(legend.position = "top") +
+  geom_jitter(aes(color=Home.Value), position = position_jitter(width=0.2), alpha=0.6, size=14) +
+  scale_color_gradient(low="green", high="red")
+
+```
+
+####Sample report 6
+
+```{r r6}
+
+d.mean <- dane[dane$region %in% c("N. East","West"),] %>%
+  group_by(region, Date) %>%
+  summarise(Home.Value=mean(Home.Value)/1000, Land.Value=mean(Land.Value)/1000)
+
+
+ggplot(d.mean) + geom_hex(aes(x=Home.Value, y=Land.Value)) + facet_wrap(~region) + 
+  scale_fill_gradient(low="green", high="red", name="Liczba") +
+  xlab("Land price (1000 USD)") + ylab("Home price (1000 USD)")
+
+```
+
+####Sample report 7
+
+```{r r7}
+
+ggplot(dane, aes(x=Year, y=State)) + geom_tile(aes(fill=Home.Value/1000)) +
+  scale_fill_gradient2(name="Home price (1000 USD)",low="yellow", mid="green", high="red", midpoint=median(d$Home.Value)/1000) +
+  xlab("Year") + ylab("State")
+
+```
+
+####Sample report 8
+
+```{r r8}
+
+ggplot(d[d$State %in% c("CT","AR"),]) + 
+  geom_point(aes(x=Date, y=Home.Value/1000, color=State, size=Land.Price.Index+5), alpha=0.4) +
+   xlab("Year") + ylab("Home price (1000 USD)") +
+  scale_color_discrete(name="State") + scale_size_continuous(name="Land price index") +
+  theme(legend.position="bottom",axis.text=element_text(size = 16))
+
+```

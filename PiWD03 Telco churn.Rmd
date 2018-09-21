@@ -1,0 +1,104 @@
+---
+title: "Churn in telecommunications - exploratory data analysis"
+author: "Mariusz Rafało"
+output:
+  html_document: default
+  html_notebook: default
+editor_options: 
+  chunk_output_type: console
+---
+
+*Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
+
+&copy; *Copyright Mariusz Rafało*
+
+---
+
+####Summary
+This document presents exploratory analysis of customer churn in relationship with several behavioral variables.  
+
+####Data
+Dataset *telco.csv* was downloaded from [Churn in Telecom dataset](https://rickvanderzwet.nl/trac/personal/export/167/liacs/dbdm/dbdm_3/report.pdf) article.
+
+####Introduction
+
+Environment setup
+
+```{r setup, include=FALSE, ECHO=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5, echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+
+####Churn analysis
+
+1. Load data from *telco.csv* file
+
+```{r}
+
+dane <- read.csv("E:/Data Sets/telco/telco.csv", header=TRUE, sep=";")
+
+```
+
+
+2. Graphical representation of variables: DayCalls, EveCalls, NightCalls, IntlCalls
+
+```{r}
+par(mfrow=c(2,2))
+
+hist(dane$DayCalls, xlab="DayCalls", main="DayCalls")
+hist(dane$EveCalls, xlab="EveCalls", main="EveCalls")
+hist(dane$NightCalls, xlab="NightCalls", main="NightCalls")
+hist(dane$IntlCalls, xlab="IntlCalls", main="IntlCalls")
+
+par(mfrow=c(1,1))
+```
+
+3.Churn rate on pie chart
+
+```{r}
+pie(table(dane$Churn), col=c(11,112))
+
+```
+
+4. Number of customers in different states
+
+```{r fig.width=15, fig.height=5}
+liczba.state <- table(dane$State)
+barplot(liczba.state)
+plot(liczba.state,type="h", lwd=7,ylim=c(30,100), col="blue")
+```
+
+5. Call center contacts for *churn* and *noChurn* customers
+
+```{r}
+plot(as.numeric(dane$CustServCalls)~factor(dane$Churn,levels=c(0,1)), xlab="Churn", ylab="Call center calls")
+```
+
+6a. Contract length vs number of daily calls
+
+```{r}
+plot(dane$AccountLength~dane$DayCalls, xlab="AccountLength", ylab="DayCalls", pch=12)
+
+lines(lowess(dane$AccountLength~dane$DayCall), col="red", lwd=3)
+```
+
+
+6b. Does average call duration affects churn?
+
+```{r}
+d0 <- density(dane[dane$Churn==0,]$DayMins)
+d1 <- density(dane[dane$Churn==1,]$DayMins)
+plot(d0, col="green", main="")
+lines(d1,col="red")
+
+```
+
+6c. Call center contacts and churn rate relationship
+
+```{r}
+plot(dane$CustServCalls,dane$DayMins, col=dane$Churn+11, pch=16, xlab="CustServCalls", ylab="DayMins")
+legend(x = 6, y = 50, legend = c("noChurn","churn"), col = c(11,12), pch = 16)
+
+```
+
+

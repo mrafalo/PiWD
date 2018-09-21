@@ -1,0 +1,99 @@
+---
+title: "Linear regression - basic concept"
+author: "Mariusz Rafało"
+output:
+  html_document: default
+  html_notebook: default
+editor_options: 
+  chunk_output_type: console
+---
+
+*Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
+
+&copy; *Copyright Mariusz Rafało*
+
+---
+
+####Summary
+This document presents basic concepts of linear regression performed in *R*.
+
+####Data
+All data used in this document come from *R* package **MASS**.
+
+####Introduction
+
+Environment setup
+
+```{r setup, include=FALSE, ECHO=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5, echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+Libraries used in document
+
+```{r}
+library(MASS)
+```
+
+---
+
+#### Linear regression
+
+Put *Cars93* built-in dataset into variable *dane*
+```{r}
+dane <- Cars93
+```
+
+Linear regression model build: function *lm*
+
+```{r}
+lm1 <- lm(Price~Horsepower, data=dane)
+```
+
+Model summary
+
+```{r}
+
+summary(lm1)
+```
+
+Theoretical (model) vs real values
+
+```{r}
+par(mfrow=c(1,1))
+plot(dane$Price~dane$Horsepower, xlab="Horsepower", ylab="Price")
+abline(lm1, col='red')
+legend("topleft", legend=c("real","model"), col=c("black","red"), pch=c(1,NA), lty=c(NA,2), bty="n")
+
+```
+
+
+Model diagnostics
+
+```{r}
+par(mfrow = c(2, 2))
+plot(lm1)
+par(mfrow = c(1, 1))
+
+coefficients(lm1)
+
+plot(dane$Price~dane$Horsepower, xlab="Horsepower", ylab="Price")
+abline(lm1, col='red')
+segments(dane$Horsepower, dane$Price, dane$Horsepower, lm1$fitted.values,col="red")
+
+
+```
+
+Residuals analysis
+
+```{r}
+reszty = residuals(lm1)
+hist(reszty, prob=TRUE, ylim=c(0,0.11))
+lines(density(reszty), col="red", lwd=2)
+```
+
+Normality verification using *Shapiro-Wilk* test
+
+```{r}
+shapiro.test(reszty)
+
+```

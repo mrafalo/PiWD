@@ -1,0 +1,99 @@
+---
+title: "Logistic regression - basic concept"
+author: "Mariusz Rafało"
+output:
+  html_document: default
+  html_notebook: default
+editor_options: 
+  chunk_output_type: console
+---
+
+*Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
+
+&copy; *Copyright Mariusz Rafało*
+
+---
+
+####Summary
+This document presents basic concepts of logistic regression performed in *R*.
+
+####Data
+Dataset *telco.csv* was downloaded from [Churn in Telecom dataset](https://rickvanderzwet.nl/trac/personal/export/167/liacs/dbdm/dbdm_3/report.pdf) article.
+
+####Introduction 
+
+Environment setup
+
+```{r setup, include=FALSE, ECHO=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5, echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+---
+
+Load data from *telco.csv* file
+
+```{r}
+dane <- read.csv("E:/Data sets/telco/telco.csv", header=TRUE, sep=";")
+```
+
+Divide dataset into training and test datasets 
+
+```{r}
+set.seed(101) 
+sample <- sample.int(nrow(dane), floor(.75*nrow(dane)), replace = F)
+dane.train <- dane[sample, ]
+dane.test <- dane[-sample, ]
+```
+
+####Logistic regression
+
+
+The model
+
+```{r}
+
+fitlogit <- glm(formula = Churn ~ AccountLength + DayMins + IntlPlan + VMailPlan  + IntlCalls + CustServCalls + EveCalls + NightCalls + VMailMessage, family = "binomial", data = dane.train) 
+```
+
+Model summary
+
+```{r}
+summary(fitlogit)
+
+reszty = residuals(fitlogit)
+hist(reszty, prob=TRUE, ylim=c(0,1.8))
+lines(density(reszty), col="red", lwd=2)
+
+shapiro.test(reszty)
+```
+
+Model diagnostics: confusion matrix
+
+```{r}
+library(caret) #confusionMatrix
+
+predict.glm <- predict(fitlogit, newdata=dane.test, type = "response") 
+predict.glm1 <- predict.glm
+
+predict.glm1[predict.glm>0.3] <-1
+predict.glm1[predict.glm<=0.3] <-0
+
+
+plot(density(dane.test$Churn))
+lines(density(dane.test[predict.glm1==1,]$Churn))
+
+conf.matrix.glm <- confusionMatrix(predict.glm1, as.numeric(dane.test$Churn))
+
+conf.matrix.glm$table
+```
+
+ROC curve
+
+```{r}
+library(pROC) #roc
+
+roc.glm <- roc(as.numeric(dane.test$Churn),predict.glm, direction="<")
+
+plot(roc.glm,col="red", lwd=1, main="Model 1")
+
+```

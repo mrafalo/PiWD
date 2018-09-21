@@ -1,0 +1,233 @@
+---
+title: "Introduction to *R* and *Markdown*"
+author: "Mariusz Rafało"
+output:
+  html_document: default
+  html_notebook: default
+editor_options: 
+  chunk_output_type: console
+---
+
+*Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
+
+&copy; *Copyright Mariusz Rafało*
+
+---
+
+####Summary
+This document presents basic concepts of data exploration in *R*.
+
+####Data
+All data used in this document come from *R* package **MASS**.
+
+
+####Introduction  
+
+Environment setup
+
+```{r setup, include=FALSE, ECHO=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5, echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+Libraries used in document
+
+```{r}
+library(MASS)
+```
+
+####Examples
+
+**Example 1:** Cars sales in USA, in 1993 - data sample
+
+```{r}
+
+head(Cars93[,c(1:4)], n=5)
+```
+
+
+Sample plots
+
+```{r}
+
+plot(Cars93[,c("Price","Passengers","EngineSize")])
+
+```
+
+**Example 2:** Ship malfunctions - data sample
+
+```{r}
+head(ships, n=7)
+
+```
+
+Sample plots
+
+```{r}
+
+plot(ships$incidents)
+
+plot(ships$incidents~ships$year, xlim=c(0,100))
+
+plot(density(ships$incidents), lwd=4, lty=5, col=22)
+
+```
+
+
+**Example 3:**Exam results of University of Adelaide students
+
+```{r}
+
+data(survey)
+
+head(survey[,c(1:4)],n=5)
+
+table(survey$Sex,survey$Exer)
+
+table(survey$Sex,factor(survey$Exer,levels=c("None","Some","Freq")))
+
+round(prop.table(table(survey$Sex,factor(survey$Exer,levels=c("None","Some","Freq")))),2)
+
+
+```
+
+#### Sample data analysis:Exam results of University of Adelaide students
+
+Data types
+
+```{r}
+str(survey)
+```
+
+Basic statistics
+
+```{r}
+summary(survey)
+```
+
+Basic plots
+
+```{r}
+plot(survey$Sex)
+
+pie(table(survey$Sex))
+```
+
+
+Graphical representation of relationship between *sex* and *height* variables
+
+```{r}
+plot(survey[c("Sex","Height")])
+
+plot(survey[c("Sex","Exer")])
+```
+
+Graphical representation of relationship between *sex* and *smoke* variables
+
+```{r}
+
+liczba.smoke <- table(survey$Smoke)
+barplot(liczba.smoke, col=1:length(liczba.smoke))
+
+plot(survey$Sex,survey$Smoke)
+
+```
+
+...continued...
+
+```{r}
+par(mfrow=c(2,1))
+
+liczba.sex <- table(survey$Sex)
+barplot(liczba.sex, col=c(12,13))
+
+liczba.hand <- table(survey$W.Hnd)
+barplot(liczba.hand, col=c(14,15))
+
+par(mfrow=c(1,1))
+
+```
+
+*table* function example
+
+```{r}
+
+liczba.tabela <- table(survey$Smoke,survey$Sex)
+
+liczba.tabela
+
+plot(liczba.tabela,col=rainbow(5))
+```
+
+*factor* function example
+
+```{r}
+survey$Smoke.ordered <- factor(survey$Smoke, levels = c("Never", "Occas", "Regul", "Heavy"))
+
+liczba.tabela <- table(survey$Smoke.ordered,survey$Sex)
+
+liczba.tabela
+
+plot(liczba.tabela,col=rainbow(5))
+```
+
+Adding title and legend to plot
+
+```{r}
+
+barplot(liczba.tabela, beside=TRUE, 
+        names=names(liczba.tabela),col=rainbow(4))
+title ="Palenie tytoniu a płeć"
+legend(x="topright", 
+      legend=rownames(liczba.tabela), fill=rainbow(4))
+```
+
+
+```{r}
+plot(survey$Smoke.ordered~survey$Sex,col=c(20:24),xlab="Sex", ylab="Smoke")
+
+```
+
+#### Selected functions from *graphics* package
+
+**par** 
+```{r}
+par(mfrow=c(2,2))
+par(mfrow=c(2,2))
+liczba.MI <- table(survey$M.I)
+barplot(liczba.MI, col=c(12,13))
+
+liczba.Fold <- table(survey$Fold)
+barplot(liczba.Fold, col=c(14,15,16))
+
+hist(survey$Pulse, xlab="Puls", main="")
+plot(survey$Pulse~survey$Sex, xlab="Płeć", ylab="Puls")
+
+par(mfrow=c(1,1))
+```
+
+**barplot** 
+
+```{r}
+liczba.W.Hnd <- table(survey$W.Hnd)
+barplot(liczba.W.Hnd, col=c(12,13))
+```
+
+**pie** 
+
+```{r}
+liczba.exer <- table(survey$Exer)
+pie(liczba.exer, col=c(22,23,24))
+```
+
+**hist** 
+
+```{r}
+hist(survey$Age, xlab="Wiek", main="", breaks=6, col="green")
+```
+
+**density**
+
+```{r}
+d <- density(survey$Age)
+plot(d, col="red", main="")
+```
