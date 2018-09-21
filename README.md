@@ -1,7 +1,4 @@
----
-title: "Data Visualisation and Presentation"
-author: "Mariusz Rafało"
----
+###Data Visualisation and Presentation
 
 *Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
 
