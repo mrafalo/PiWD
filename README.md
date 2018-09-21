@@ -9,4 +9,4 @@ author: "Mariusz Rafało"
 
 ---
 
-This project includes *rmd* files that are discussed and implemented during classes. For each *rmd* file, there is also *html* report included.
+This project includes *rmd* files that are discussed and implemented during classes. For each *rmd* file, there is also *html* report included
