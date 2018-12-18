@@ -1,4 +1,4 @@
-###Data Visualisation and Presentation
+### Data Visualisation and Presentation
 
 *Support material for class: Data Visualisation and Presentation at Warsaw School of Economics*
 
