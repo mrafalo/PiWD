@@ -141,7 +141,7 @@ boxplot(Cars93$Price)
 barplot(Cars93$Price)
 
 pie(table(Cars93$Type))
-
+pie(sort(table(Cars93$Type), decreasing = F))
 
 ```
 

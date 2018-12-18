@@ -71,6 +71,7 @@ qplot(data=dane, x=Home.Value, geom = "histogram")+ xlab("Value")
 
 wyk.hist <- ggplot(dane, aes(x = Home.Value)) + geom_histogram(color="red", fill="red") 
 wyk.hist + geom_freqpoly(color="blue")
+wyk.hist
 ```
 
 Two variables (continuous)
@@ -98,7 +99,7 @@ wyk.bazowy + geom_text(aes(label=State), size = 3)
 
 wyk.bazowy + geom_point(aes(color = Home.Value)) 
 
-wyk.bazowy + geom_point(aes(color=Home.Value/1000, shape = region), size=2) + scale_color_gradient(low = "red", high = "yellow")
+wyk.bazowy + geom_point(aes(color=Home.Value/1000, shape = region), size=2) + scale_color_gradient(name="leg", low = "red", high = "yellow")
 
 
 wyk.bazowy + geom_line(aes(color = State))
